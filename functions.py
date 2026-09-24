@@ -79,10 +79,12 @@ def compress_files(output_filename,directory,listOfFiles):
 
 
 
-def search_files(folder_path, file_name):
+def search_files( file_name):
     # write_log(f'[Search Method] {folder_path} , {file_name}')
+    base_dir_format = datetime.now().strftime('%d.%m.%y')
+    base_dir = f's:\\{base_dir_format}'
     found_files = []
-    for foldername, subfolders, filenames in os.walk(folder_path):
+    for foldername, subfolders, filenames in os.walk(base_dir):
         for filename in filenames:
             # write_log(f'[Search] {filename}')
             if file_name.lower() in filename.lower():
