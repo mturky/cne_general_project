@@ -4,6 +4,7 @@ import datetime as dtm
 import tarfile
 import shutil
 import gzip
+import csv
 
 import pandas as pd
 date =  datetime.now().strftime('%d-%m-%Y')
@@ -136,3 +137,26 @@ def createDTHfile(beinfile,dth_file_name):
         'Smart Card',
         'Item Description SC']]
         dth.to_csv(f'{base_dir}/{date} {dth_file_name}.csv',index=False)
+
+
+def clean_ft(filename):
+
+    rows = []
+
+    with open(filename, encoding="utf-8", newline="") as f:
+        reader = csv.reader(f)
+
+        header = next(reader)
+
+        # Keep columns except problematic column
+        header = header[:13] + header[-19:]
+        rows.append(header)
+
+        for row in reader:
+            if len(row) >= 10:
+                # Keep first 3 + last 6
+                row = row[:13] + row[-19:]
+                rows.append(row)
+
+    df = pd.DataFrame(rows[1:], columns=rows[0])
+    return df
