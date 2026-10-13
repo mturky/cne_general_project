@@ -6,6 +6,9 @@ import shutil
 import gzip
 import csv
 
+from exchangelib import Credentials, Account, DELEGATE, HTMLBody,FileAttachment
+from exchangelib import Message, Mailbox,Configuration
+
 import pandas as pd
 date =  datetime.now().strftime('%d-%m-%Y')
 base_dir_format = datetime.now().strftime('%d.%m.%y')
@@ -90,7 +93,7 @@ def search_files( file_name):
             # write_log(f'[Search] {filename}')
             if file_name.lower() in filename.lower():
                 found_files.append(os.path.join(foldername, filename))
-
+    print(found_files)
     return found_files
 
 
@@ -160,3 +163,32 @@ def clean_ft(filename):
 
     df = pd.DataFrame(rows[1:], columns=rows[0])
     return df
+
+
+
+def sendMail(subject,body,to=['mturky@cne.com.eg'],cc=None,attachments=None,username='rhamed',password='DELL@1qa'):
+    
+    credentials = Credentials(username=username, password=password)
+    config = Configuration(server="mail.cne.com.eg", credentials=credentials)
+    myaccount = Account(primary_smtp_address='rhamed@cne.com.eg',credentials = credentials, config=config)
+
+    m = Message(
+        account=myaccount,
+        subject=f'[Auto] {subject}',
+        body=HTMLBody( body),
+        to_recipients=to,
+        cc_recipients=cc,
+        bcc_recipients=[]
+    )
+
+    if attachments:
+
+        for a in attachments:
+            att = FileAttachment(
+            name=f'{os.path.basename(a)}',
+            content_type="image/png",
+            is_inline=False,
+            is_contact_photo=False,
+            content=open(f'{a}', "rb").read())
+            m.attach(att)
+    m.send()
